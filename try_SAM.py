@@ -46,12 +46,12 @@ sam.to(device=device)
 
 predictor = SamPredictor(sam)
 
-image = cv2.imread('images/bike_people.jpg')
+image = cv2.imread('images/bike.jpg')
 # images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
 # image = images[0]
 
 # input_box = np.array([64,76,940,919])
-cv2.namedWindow("Get_mask", cv2.WND_PROP_FULLSCREEN)
+# cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
 x, y, w, h = cv2.selectROI("Get_mask", image, showCrosshair=False, fromCenter=False)
 box_points = np.array([x, y, x+w, y+h])
 input_box = np.array(box_points)

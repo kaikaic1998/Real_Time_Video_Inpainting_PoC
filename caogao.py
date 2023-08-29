@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import glob
+import matplotlib.patches as patches
 
 def show_mask(mask, ax, random_color=False):
     if random_color:
@@ -67,21 +68,52 @@ def what_is_plt_gca():
     middle_end = middle_start + 100
     zeros_array[middle_start:middle_end, :] = 1
     plt.gca().imshow(zeros_array)
+    # plt.show()
+    ones_indices = np.argwhere(zeros_array == 1)
+
+    # Calculate bounding box coordinates
+    min_x = ones_indices[:, 1].min()
+    max_x = ones_indices[:, 1].max()
+    min_y = ones_indices[:, 0].min()
+    max_y = ones_indices[:, 0].max()
+
+    # Create a rectangle patch for the bounding box
+    bbox_width = max_x - min_x + 1
+    bbox_height = max_y - min_y + 1
+    bbox = patches.Rectangle((min_x - 0.5, min_y - 0.5), bbox_width, bbox_height, linewidth=2, edgecolor='r', facecolor='none')
+
+    # Add the bounding box to the plot
+    plt.gca().add_patch(bbox)
+
     plt.show()
 # what_is_plt_gca()
 
-# image = cv2.imread('images/truck.jpg')
+def try_selectROI():
+    # image = cv2.imread('images/truck.jpg')
 
-images = [cv2.imread(image) for image in glob.glob("images/bmx-trees_frame/*.jpg")]
+    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees_frame/*.jpg")]
 
-image = images[0]
+    image = images[0]
 
-cv2.namedWindow("Get_mask", cv2.WND_PROP_FULLSCREEN)
-x, y, w, h = cv2.selectROI("Get_mask", image, showCrosshair=False, fromCenter=False)
-input_box = np.array([x, y, x+w, y+h])
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    cv2.namedWindow("Get_mask", cv2.WND_PROP_FULLSCREEN)
+    x, y, w, h = cv2.selectROI("Get_mask", image, showCrosshair=False, fromCenter=False)
+    input_box = np.array([x, y, x+w, y+h])
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-plt.imshow(image)
-# show_box(input_box, plt.gca())
-plt.axis('off')
-plt.show()
+    plt.imshow(image)
+    # show_box(input_box, plt.gca())
+    plt.axis('off')
+    plt.show()
+# try_selectROI()
+
+def try_plt_pause():
+    np.random.seed(19)
+    data = np.random.random((5, 10, 10))
+    
+    
+    for i in range(len(data)):
+        plt.cla()
+        plt.title('matplotlib.pyplot.pause() function Example\n\n Window {}'.format(i), fontweight ="bold")
+        plt.imshow(data[i])
+        plt.pause(0.5)
+try_plt_pause()
