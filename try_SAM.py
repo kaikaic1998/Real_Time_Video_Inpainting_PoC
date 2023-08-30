@@ -3,6 +3,7 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 import glob
+import time
 
 from segment_anything import sam_model_registry, SamPredictor
 def show_mask(mask, ax, random_color=False):
@@ -35,6 +36,23 @@ def show_box(box, ax):
     w, h = box[2] - box[0], box[3] - box[1]
     ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
 
+# take a mask, return input_box numpy array
+def create_box_from_mask(mask):
+    true_indices = np.argwhere(mask)
+
+    # Calculate bounding box coordinates
+    min_x = true_indices[:, 1].min() # x0
+    max_x = true_indices[:, 1].max()
+    min_y = true_indices[:, 0].min() # y0
+    max_y = true_indices[:, 0].max()
+
+    # Create a rectangle patch for the bounding box
+    box_width = max_x - min_x
+    box_height = max_y - min_y
+    
+    box = np.array([min_x-10, min_y-10, min_x + box_width + 20, min_y + box_height + 20])
+    return box
+
 # ------------------------------run SAM demo------------------------------------
 sam_checkpoint = "C:/Users/Kainian/Desktop/WorkSpace/segment-anything/segment_anything/sam_vit_h_4b8939.pth"
 model_type = "vit_h"
@@ -47,32 +65,40 @@ sam.to(device=device)
 predictor = SamPredictor(sam)
 
 image = cv2.imread('images/bike.jpg')
-# images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
-# image = images[0]
+images = [cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB) for image in glob.glob("images/bmx-trees/*.jpg")]
 
 # input_box = np.array([64,76,940,919])
 # cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
-x, y, w, h = cv2.selectROI("Get_mask", image, showCrosshair=False, fromCenter=False)
-box_points = np.array([x, y, x+w, y+h])
-input_box = np.array(box_points)
-print(input_box)
+cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
+x, y, w, h = cv2.selectROI("Get_mask", images[0], showCrosshair=False, fromCenter=False)
+cv2.destroyAllWindows()
+input_box = np.array([x, y, x+w, y+h])
 
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-predictor.set_image(image)
+start_time = time.time()
 
-masks, _, _ = predictor.predict(
-    point_coords=None,
-    point_labels=None,
-    box=input_box[None, :],
-    multimask_output=False,
-)
+for i, image in enumerate(images):
+    predictor.set_image(image)
+    masks, _, _ = predictor.predict(
+        point_coords=None,
+        point_labels=None,
+        box=input_box[None, :],
+        multimask_output=False,
+    )
 
-plt.figure(figsize=(10, 10))
-# image = image * np.zeros(image.shape) # make image black 
-plt.imshow(image)
-show_mask(masks[0], plt.gca())
-# show_white_mask(masks[0], plt.gca())
-show_box(input_box, plt.gca())
-plt.axis('off')
-plt.savefig('image_sam.jpg')
-plt.show()
+    input_box = create_box_from_mask(masks[0])
+
+    plt.cla()
+    image = image * np.zeros(image.shape) # make image black 
+    plt.imshow(image)
+    # show_mask(masks[0], plt.gca())
+    show_white_mask(masks[0], plt.gca())
+    show_box(input_box, plt.gca())
+    plt.axis('off')
+    # plt.pause(0.0001)
+
+    # if i == 20:
+    #     break
+
+end_time = time.time()
+run_time_spent = end_time - start_time
+print("The time of execution of the program is :", run_time_spent, "seconds")

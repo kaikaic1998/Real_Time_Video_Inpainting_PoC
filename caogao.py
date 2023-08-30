@@ -14,10 +14,10 @@ def show_mask(mask, ax, random_color=False):
     mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1) # shape (1200, 1800, 1) x shape (1, 1, 4) = shape (1200, 1800, 4)
     ax.imshow(mask_image) # plt.gca().imshow(mask_image) plots the 1s and 0s, allowing visualization
 
-def show_box(box, ax):
-    x0, y0 = box[0], box[1]
-    w, h = box[2] - box[0], box[3] - box[1]
-    ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
+def show_box(box, image):
+    x_start, y_start = box[0], box[1]
+    x_end, y_end = box[2], box[3]
+    return cv2.rectangle(image, (x_start, y_start), (x_end, y_end), color=(0,255,0), thickness=2)
 
 # arr = np.arange(100).reshape((10, 10))
 # fig = plt.figure(figsize =(4, 4))
@@ -90,30 +90,43 @@ def what_is_plt_gca():
 
 def try_selectROI():
     # image = cv2.imread('images/truck.jpg')
-
-    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees_frame/*.jpg")]
-
+    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
     image = images[0]
-
-    cv2.namedWindow("Get_mask", cv2.WND_PROP_FULLSCREEN)
+    cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
     x, y, w, h = cv2.selectROI("Get_mask", image, showCrosshair=False, fromCenter=False)
     input_box = np.array([x, y, x+w, y+h])
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    plt.imshow(image)
-    # show_box(input_box, plt.gca())
-    plt.axis('off')
-    plt.show()
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = image * np.zeros(image.shape)
+    image = show_box(input_box, image)
+    cv2.imshow('', image)
+    cv2.imshow('', images[60])
+    cv2.waitKey(0)
 # try_selectROI()
 
-def try_plt_pause():
-    np.random.seed(19)
-    data = np.random.random((5, 10, 10))
-    
-    
-    for i in range(len(data)):
-        plt.cla()
-        plt.title('matplotlib.pyplot.pause() function Example\n\n Window {}'.format(i), fontweight ="bold")
-        plt.imshow(data[i])
-        plt.pause(0.5)
-try_plt_pause()
+
+images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
+image = images[0]
+print(image.shape)
+
+# create a numpy array of zeros with dimension of 500 x 500, 
+# then makes the middle 100 rows to  be ones
+array_shape = (1080, 1920)
+mask = np.zeros(array_shape, dtype=bool)
+middle_start = (array_shape[0] - 100) // 2
+middle_end = middle_start + 200
+mask[middle_start:middle_end, :] = True
+
+print(mask)
+mask = ~mask
+print(mask)
+h, w = mask.shape[-2:]
+mask = mask.astype(np.uint8) * 1
+mask = mask.reshape(h, w, 1)
+
+image = image * mask
+
+print(mask.shape)
+print(mask.dtype)
+
+cv2.imshow('', image)
+cv2.waitKey(0)
