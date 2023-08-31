@@ -106,8 +106,6 @@ def try_selectROI():
 
 images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
 image = images[0]
-print(image.shape)
-
 # create a numpy array of zeros with dimension of 500 x 500, 
 # then makes the middle 100 rows to  be ones
 array_shape = (1080, 1920)
@@ -116,17 +114,25 @@ middle_start = (array_shape[0] - 100) // 2
 middle_end = middle_start + 200
 mask[middle_start:middle_end, :] = True
 
-print(mask)
-mask = ~mask
-print(mask)
+# mask = ~mask
+# mask = mask.astype(np.uint8) * 1
+# h, w = mask.shape[-2:]
+# mask = mask.reshape(h, w, 1)
+# cv2.imshow('', mask)
+# cv2.waitKey(0)
+color = np.array([255/255, 255/255, 255/255, 1])
+print(color.dtype)
+
 h, w = mask.shape[-2:]
-mask = mask.astype(np.uint8) * 1
-mask = mask.reshape(h, w, 1)
-
-image = image * mask
-
-print(mask.shape)
+mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
 print(mask.dtype)
 
-cv2.imshow('', image)
+cv2.imshow('', mask)
 cv2.waitKey(0)
+cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/mask.jpg', mask)
+# mask_image = image * mask
+# print(mask_image.shape)
+
+
+# cv2.imshow('', mask_image)
+# cv2.waitKey(0)

@@ -17,10 +17,10 @@ def show_mask(mask, ax, random_color=False):
     mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
     ax.imshow(mask_image)
 
-def show_white_mask(mask):
+def return_white_mask(mask):
+    color = np.array([255, 255, 255])
     h, w = mask.shape[-2:]
-    mask = mask.astype(np.uint8) * 1
-    mask = mask.reshape(h, w, 1)
+    mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
     return mask
 
 def show_points(coords, labels, ax, marker_size=375):
@@ -69,15 +69,13 @@ def show_res(i, masks, scores, input_point, input_label, input_box, image):
     #     # print(f"Score: {score:.3f}")
     #     plt.axis('off')
     #     plt.pause(0.0001)
-    # image = image * np.zeros(image.shape)
-    mask = show_white_mask(masks[0])
-    image = image * mask
-    if input_box is not None:
-        box = input_box[0]
-        image = show_box(box, image)
-    cv2.imshow('', image)
-    # cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/' + str(i) + '.jpg', image)
-    cv2.waitKey(0)
+
+    mask = return_white_mask(masks[0])
+    # if input_box is not None:
+    #     box = input_box[0]
+    #     image = show_box(box, image)
+    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
+    cv2.waitKey(1)
 
 def show_res_multi(masks, scores, input_point, input_label, input_box, image):
     plt.figure(figsize=(10, 10))
@@ -104,12 +102,11 @@ predictor = SamPredictor(sam)
 # image = cv2.imread('images/bike.jpg')
 images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
 
-# cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
-# x, y, w, h = cv2.selectROI("Get_mask", images[0], showCrosshair=False, fromCenter=False)
-# cv2.destroyAllWindows()
-# input_box = np.array([[x, y, x+w, y+h]])
-input_box = np.array([[781,242,1273,882]])
-print(input_box)
+cv2.namedWindow("Get_mask", cv2.WINDOW_NORMAL)
+x, y, w, h = cv2.selectROI("Get_mask", images[0], showCrosshair=False, fromCenter=False)
+cv2.destroyAllWindows()
+input_box = np.array([[x, y, x+w, y+h]])
+# input_box = np.array([[781,242,1273,882]])
 
 start_time = time.time()
 
@@ -123,14 +120,12 @@ for i, image in enumerate(images):
         multimask_output=False,
         hq_token_only= False,
     )
-    print(masks[0].shape)
-    print(masks[0].dtype)
     input_box = create_box_from_mask(masks[0])
 
     show_res(i, masks,scores,input_point, input_label, input_box, image)
 
-    if i == 0:
-        break
+    # if i == 0:
+    #     break
 
 end_time = time.time()
 run_time_spent = end_time - start_time
