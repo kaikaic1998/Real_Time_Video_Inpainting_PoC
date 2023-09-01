@@ -103,36 +103,54 @@ def try_selectROI():
     cv2.waitKey(0)
 # try_selectROI()
 
+def try_mask():
+    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
+    image = images[0]
+    # create a numpy array of zeros with dimension of 500 x 500, 
+    # then makes the middle 100 rows to  be ones
+    array_shape = (1080, 1920)
+    mask = np.zeros(array_shape, dtype=bool)
+    middle_start = (array_shape[0] - 100) // 2
+    middle_end = middle_start + 200
+    mask[middle_start:middle_end, :] = True
 
-images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
-image = images[0]
-# create a numpy array of zeros with dimension of 500 x 500, 
-# then makes the middle 100 rows to  be ones
-array_shape = (1080, 1920)
-mask = np.zeros(array_shape, dtype=bool)
-middle_start = (array_shape[0] - 100) // 2
-middle_end = middle_start + 200
-mask[middle_start:middle_end, :] = True
+    # mask = ~mask
+    # mask = mask.astype(np.uint8) * 1
+    # h, w = mask.shape[-2:]
+    # mask = mask.reshape(h, w, 1)
+    # cv2.imshow('', mask)
+    # cv2.waitKey(0)
+    color = np.array([255/255, 255/255, 255/255, 1])
+    print(color.dtype)
 
-# mask = ~mask
-# mask = mask.astype(np.uint8) * 1
-# h, w = mask.shape[-2:]
-# mask = mask.reshape(h, w, 1)
-# cv2.imshow('', mask)
-# cv2.waitKey(0)
-color = np.array([255/255, 255/255, 255/255, 1])
-print(color.dtype)
+    h, w = mask.shape[-2:]
+    mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
+    print(mask.dtype)
 
-h, w = mask.shape[-2:]
-mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-print(mask.dtype)
-
-cv2.imshow('', mask)
-cv2.waitKey(0)
-cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/mask.jpg', mask)
-# mask_image = image * mask
-# print(mask_image.shape)
+    cv2.imshow('', mask)
+    cv2.waitKey(0)
+    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/mask.jpg', mask)
+    # mask_image = image * mask
+    # print(mask_image.shape)
 
 
-# cv2.imshow('', mask_image)
-# cv2.waitKey(0)
+    # cv2.imshow('', mask_image)
+    # cv2.waitKey(0)
+# try_mask()
+
+def draw_rectangle_from_points():
+    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
+    image = images[-1]
+
+    location = np.array([559.13275, 703.2408, 573.11835, 370.38312, 771.6838, 378.72626, 757.6982, 711.5839])
+    # temp_location = np.intp(location).reshape((-1, 1, 2))
+    temp_location = np.reshape(np.intp(location), (4, -1))
+    max_point = np.max(temp_location, axis=0)
+    min_point = np.min(temp_location, axis=0)
+    print(max_point,min_point)
+    cv2.rectangle(image, min_point, max_point, color=(0,255,0), thickness=2)
+
+    cv2.imshow('', image)
+    cv2.waitKey(0)
+draw_rectangle_from_points()
+
