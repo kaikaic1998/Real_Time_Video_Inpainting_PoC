@@ -89,11 +89,11 @@ def mask(args):
             counter += 1
 
             # im[:, :, 2] = (mask > 0) * 255 + (mask == 0) * im[:, :, 2]
-            # cv2.polylines(im, [np.int0(location).reshape((-1, 1, 2))], True, (0, 255, 0), 3)
-            temp_location = np.reshape(np.intp(location), (4, -1))
-            max_point = np.max(temp_location, axis=0)
-            min_point = np.min(temp_location, axis=0)
-            cv2.rectangle(im, min_point, max_point, color=(0,255,0), thickness=2)
+            cv2.polylines(im, [np.int0(location).reshape((-1, 1, 2))], True, (0, 255, 0), 3)
+            # temp_location = np.reshape(np.intp(location), (4, -1))
+            # max_point = np.max(temp_location, axis=0)
+            # min_point = np.min(temp_location, axis=0)
+            # cv2.rectangle(im, min_point, max_point, color=(0,255,0), thickness=2)
             cv2.imwrite('results/{}_frame/{:05d}.jpg'.format(args.data, counter), im)
             cv2.imshow('Get_mask', im)
             cv2.waitKey(1)
