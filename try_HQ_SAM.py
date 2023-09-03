@@ -3,7 +3,6 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 import glob
-import matplotlib.patches as patches
 import time
 
 from segment_anything_hq import sam_model_registry, SamPredictor
@@ -71,25 +70,24 @@ def show_res(i, masks, scores, input_point, input_label, input_box, image):
     #     plt.pause(0.0001)
     
     # image
-    # if input_box is not None:
-    #     box = input_box[0]
-    #     show_box(box, image)
-    # cv2.imshow('', image)
-    # cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), image)
-
-    # mask
-    mask = return_white_mask(masks[0])
     if input_box is not None:
         box = input_box[0]
-        show_box(box, mask)
+        show_box(box, image)
+    cv2.imshow('', image)
+    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), image)
+    cv2.waitKey(1)
 
-    # visualize
-    plt.gca().imshow(mask)
-    plt.axis('on')
-    plt.show()
+    # # mask
+    # mask = return_white_mask(masks[0])
+    # if input_box is not None:
+    #     box = input_box[0]
+    #     show_box(box, mask)
+    # # visualize
+    # plt.gca().imshow(mask)
+    # plt.axis('on')
+    # plt.show()
+    # cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
 
-    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
-    # cv2.waitKey(1)
 
 def show_res_multi(masks, scores, input_point, input_label, input_box, image):
     plt.figure(figsize=(10, 10))
@@ -138,8 +136,8 @@ for i, image in enumerate(images):
 
     show_res(i, masks,scores,input_point, input_label, input_box, image)
 
-    if i == 0:
-        break
+    # if i == 0:
+    #     break
 
 end_time = time.time()
 run_time_spent = end_time - start_time

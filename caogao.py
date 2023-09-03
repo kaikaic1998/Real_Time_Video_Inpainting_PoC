@@ -19,9 +19,6 @@ def show_box(box, image):
     x_end, y_end = box[2], box[3]
     return cv2.rectangle(image, (x_start, y_start), (x_end, y_end), color=(0,255,0), thickness=2)
 
-# arr = np.arange(100).reshape((10, 10))
-# fig = plt.figure(figsize =(4, 4))
-
 # h, w = mask.shape[-2:] <-- what does [-2:] do?
 def what_this_array_manipulation():
     arr = np.array([[1,2,3], [4,5,6], [7,8,9]])
@@ -152,5 +149,7 @@ def draw_rectangle_from_points():
 
     cv2.imshow('', image)
     cv2.waitKey(0)
-draw_rectangle_from_points()
+# draw_rectangle_from_points()
 
+x, y = np.array([0, 1])
+print(x, y)
