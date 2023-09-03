@@ -47,16 +47,17 @@ def create_box_from_mask(mask):
     box = np.array([[min_x-10, min_y-10, min_x + box_width + 20, min_y + box_height + 20]])
     return box
 
-def show_res(i, masks, scores, input_point, input_label, input_box, image):
-    # # image
-    # if input_box is not None:
-    #     box = input_box[0]
-    #     show_box(box, image)
-    # cv2.namedWindow('mask', cv2.WINDOW_NORMAL)
-    # cv2.imshow('mask', image)
+def show_res_image(i, masks, scores, input_point, input_label, input_box, image):
+    # image
+    if input_box is not None:
+        box = input_box[0]
+        show_box(box, image)
+    cv2.namedWindow('mask', cv2.WINDOW_NORMAL)
+    cv2.imshow('mask', image)
     # cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), image)
-    # cv2.waitKey(1)
+    cv2.waitKey(1)
 
+def show_res(i, masks, scores, input_point, input_label, input_box, image):
     # mask
     mask = return_white_mask(masks[0])
     if input_box is not None:
@@ -118,7 +119,8 @@ for i, image in enumerate(images):
         hq_token_only= False,
     )
 
-    show_res(i, masks,scores,input_point, input_label, input_box, image)
+    show_res_image(i, masks,scores,input_point, input_label, input_box, image)
+    # show_res(i, masks,scores,input_point, input_label, input_box, image)
 
     state = siamese_track(state, image, mask_enable=True, refine_enable=True)  # track
     location = state['ploygon'].flatten()
@@ -127,6 +129,10 @@ for i, image in enumerate(images):
     x_max, y_max = np.max(temp_location, axis=0)
 
     input_box = np.array([[x_min, y_min, x_max, y_max]])
+
+    # cv2.rectangle(image, (x_min, y_min), (x_max, y_max), color=(0,255,0), thickness=2)
+    # cv2.imshow('Get_mask', image)
+    # cv2.waitKey(1)
 
     # input_box = create_box_from_mask(masks[0])
 
