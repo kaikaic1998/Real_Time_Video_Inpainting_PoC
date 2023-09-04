@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import glob
+import time
 
 #-----------------Siammask------------------
 import argparse
@@ -44,28 +45,37 @@ def create_box_from_mask(mask):
     box_width = max_x - min_x
     box_height = max_y - min_y
     
-    box = np.array([[min_x-10, min_y-10, min_x + box_width + 20, min_y + box_height + 20]])
+    box = np.array([min_x, min_y, min_x + box_width, min_y + box_height])
     return box
 
-def show_res_image(i, masks, scores, input_point, input_label, input_box, image):
-    # image
+def show_res_image(i, masks, input_box, image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    plt.cla()
+    plt.imshow(image)
+    color = np.array([30/255, 144/255, 255/255, 0.6])
+    h, w = masks[0].shape[-2:]
+    mask_image = masks[0].reshape(h, w, 1) * color.reshape(1, 1, -1)
+    plt.gca().imshow(mask_image)
+
     if input_box is not None:
         box = input_box[0]
-        show_box(box, image)
-    cv2.namedWindow('mask', cv2.WINDOW_NORMAL)
-    cv2.imshow('mask', image)
-    # cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), image)
-    cv2.waitKey(1)
+        x0, y0 = box[0], box[1]
+        w, h = box[2] - box[0], box[3] - box[1]
+        plt.gca().add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
+    
+    plt.axis('off')
+    plt.pause(0.0001)
+    plt.savefig('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/image_box_siammask/{:05d}.png'.format(i))
 
-def show_res(i, masks, scores, input_point, input_label, input_box, image):
+def show_res(i, masks, input_box):
     # mask
     mask = return_white_mask(masks[0])
-    if input_box is not None:
-        box = input_box[0]
-        show_box(box, mask)
+    # if input_box is not None:
+    #     box = input_box[0]
+    #     show_box(box, mask)
     # visualize
     plt.gca().imshow(mask)
-    plt.axis('on')
+    plt.axis('off')
     plt.pause(0.001)
     cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
 
@@ -108,34 +118,44 @@ state = siamese_init(images[0], target_pos, target_sz, siammask, cfg['hp'])  # i
 
 input_box = np.array([[x, y, x + w, y + h]])
 
+start_time = time.time()
+
 for i, image in enumerate(images):
     predictor.set_image(image)
-    input_point, input_label = None, None
-    masks, scores, logits = predictor.predict(
-        point_coords=input_point,
-        point_labels=input_label,
-        box = input_box,
-        multimask_output=False,
-        hq_token_only= False,
+    masks, _, _ = predictor.predict(
+    point_coords=None,
+    point_labels=None,
+    box=input_box[None, :],
+    multimask_output=False,
     )
 
-    show_res_image(i, masks,scores,input_point, input_label, input_box, image)
-    # show_res(i, masks,scores,input_point, input_label, input_box, image)
+    # show_res_image(i, masks, input_box, image)
+    show_res(i, masks, input_box)
+
+    #-----------------Siammask------------------
 
     state = siamese_track(state, image, mask_enable=True, refine_enable=True)  # track
     location = state['ploygon'].flatten()
     temp_location = np.reshape(np.intp(location), (4, -1))
-    x_min, y_min = np.min(temp_location, axis=0)
-    x_max, y_max = np.max(temp_location, axis=0)
+    x_min0, y_min0 = np.min(temp_location, axis=0)
+    x_max0, y_max0 = np.max(temp_location, axis=0)
+
+    siammask_mask = state['mask'] > state['p'].seg_thr
+    x_min1, y_min1, x_max1, y_max1 = create_box_from_mask(siammask_mask)
+    #-----------------Siammask------------------
+
+    # x_min1, y_min1, x_max1, y_max1 = create_box_from_mask(masks[0])
+
+    x_min = (x_min0 + x_min1) / 2
+    y_min = (y_min0 + y_min1) / 2
+    x_max = (x_max0 + x_max1) / 2
+    y_max = (y_max0 + y_max1) / 2
 
     input_box = np.array([[x_min, y_min, x_max, y_max]])
-
-    # cv2.rectangle(image, (x_min, y_min), (x_max, y_max), color=(0,255,0), thickness=2)
-    # cv2.imshow('Get_mask', image)
-    # cv2.waitKey(1)
-
-    # input_box = create_box_from_mask(masks[0])
 
     # if i == 1:
     #     break
 
+end_time = time.time()
+run_time_spent = end_time - start_time
+print("The time of execution of the program is :", run_time_spent, "seconds")
