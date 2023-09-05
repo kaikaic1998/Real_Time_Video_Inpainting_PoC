@@ -53,7 +53,8 @@ def mask(args):
 
         mask = state['mask'] > state['p'].seg_thr
         mask = (mask * 255.).astype(np.uint8)
-        cv2.imwrite('Siammask/results/data/bmx-trees_mask/{:05d}.png'.format(counter), mask)
+        # cv2.imwrite('Siammask/results/data/bmx-trees_mask/{:05d}.png'.format(counter), mask)
+        cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
 
         im[:, :, 2] = (mask > 0) * 255 + (mask == 0) * im[:, :, 2]
 
@@ -64,7 +65,7 @@ def mask(args):
         min_point = np.min(temp_location, axis=0)
 
         cv2.rectangle(im, min_point, max_point, color=(0,255,0), thickness=2)
-        cv2.imwrite('Siammask/results/data/bmx-trees_frame/{:05d}.jpg'.format(counter), im)
+        # cv2.imwrite('Siammask/results/data/bmx-trees_frame/{:05d}.jpg'.format(counter), im)
         cv2.imshow('Get_mask', im)
         cv2.waitKey(1)
 
@@ -72,8 +73,8 @@ def mask(args):
 
         counter += 1
 
-        if i == 0:
-            break
+        # if i == 1:
+        #     break
 
     toc /= cv2.getTickFrequency()
     fps = i / toc

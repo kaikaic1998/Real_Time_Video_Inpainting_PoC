@@ -4,6 +4,8 @@ import cv2
 import glob
 import time
 
+from inpaint import inpaint
+
 #-----------------Siammask------------------
 import argparse
 from Siammask.get_mask.test import *
@@ -16,15 +18,10 @@ from segment_anything_hq import sam_model_registry, SamPredictor
 parser = argparse.ArgumentParser(description='Demo')
 parser.add_argument('--resume', default='Siammask/cp/SiamMask_DAVIS.pth', type=str,
                     metavar='PATH', help='path to latest checkpoint (default: none)')
+parser.add_argument('--data', default='images/bmx-trees', help='videos or image files')
 parser.add_argument('--mask-dilation', default=32, type=int, help='mask dilation when inpainting')
 args = parser.parse_args()
 #-----------------Siammask------------------
-
-def return_white_mask(mask):
-    color = np.array([255, 255, 255])
-    h, w = mask.shape[-2:]
-    mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-    return mask
 
 def show_box(box, image):
     x_start, y_start = box[0], box[1]
@@ -45,10 +42,10 @@ def create_box_from_mask(mask):
     box_width = max_x - min_x
     box_height = max_y - min_y
     
-    box = np.array([min_x, min_y, min_x + box_width, min_y + box_height])
+    box = np.array([min_x-10, min_y-10, min_x + box_width+10, min_y + box_height+10])
     return box
 
-def show_res_image(i, masks, input_box, image):
+def show_masked_image(i, masks, input_box, image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     plt.cla()
     plt.imshow(image)
@@ -65,19 +62,11 @@ def show_res_image(i, masks, input_box, image):
     
     plt.axis('off')
     plt.pause(0.0001)
-    plt.savefig('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/image_box_siammask/{:05d}.png'.format(i))
+    plt.savefig('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/masked_image/{:05d}.png'.format(i))
 
-def show_res(i, masks, input_box):
-    # mask
-    mask = return_white_mask(masks[0])
-    # if input_box is not None:
-    #     box = input_box[0]
-    #     show_box(box, mask)
-    # visualize
-    plt.gca().imshow(mask)
-    plt.axis('off')
-    plt.pause(0.001)
-    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/annotation/{:05d}.png'.format(i), mask)
+def save_black_white_mask(i, masks, input_box):
+    mask = (masks[0] * 255)
+    cv2.imwrite('C:/Users/Kainian/Desktop/WorkSpace/IM_Ghost_Project/images/bmx-trees_mask/{:05d}.png'.format(i), mask)
 
 device = "cuda"
 
@@ -97,14 +86,14 @@ if args.resume:
 siammask.eval().to(device)
 #-----------------Siammask------------------
 
-sam_checkpoint = "C:/Users/Kainian/Desktop/WorkSpace/sam-hq/segment_anything/sam_hq_vit_h.pth"
-model_type = "vit_h"
+sam_checkpoint = "C:/Users/Kainian/Desktop/WorkSpace/sam-hq/segment_anything/sam_hq_vit_tiny.pth"
+model_type = "vit_tiny"
 
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(device=device)
 predictor = SamPredictor(sam)
 
-images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
+images = [cv2.imread(image) for image in glob.glob(args.data + "/*.jpg")]
 
 cv2.namedWindow("mask", cv2.WINDOW_NORMAL)
 x, y, w, h = cv2.selectROI("mask", images[0], showCrosshair=False, fromCenter=False)
@@ -121,17 +110,6 @@ input_box = np.array([[x, y, x + w, y + h]])
 start_time = time.time()
 
 for i, image in enumerate(images):
-    predictor.set_image(image)
-    masks, _, _ = predictor.predict(
-    point_coords=None,
-    point_labels=None,
-    box=input_box[None, :],
-    multimask_output=False,
-    )
-
-    # show_res_image(i, masks, input_box, image)
-    show_res(i, masks, input_box)
-
     #-----------------Siammask------------------
 
     state = siamese_track(state, image, mask_enable=True, refine_enable=True)  # track
@@ -144,8 +122,6 @@ for i, image in enumerate(images):
     x_min1, y_min1, x_max1, y_max1 = create_box_from_mask(siammask_mask)
     #-----------------Siammask------------------
 
-    # x_min1, y_min1, x_max1, y_max1 = create_box_from_mask(masks[0])
-
     x_min = (x_min0 + x_min1) / 2
     y_min = (y_min0 + y_min1) / 2
     x_max = (x_max0 + x_max1) / 2
@@ -153,8 +129,22 @@ for i, image in enumerate(images):
 
     input_box = np.array([[x_min, y_min, x_max, y_max]])
 
+    predictor.set_image(image)
+    masks, _, _ = predictor.predict(
+    point_coords=None,
+    point_labels=None,
+    box=input_box[None, :],
+    multimask_output=False,
+    )
+
+    show_masked_image(i, masks, input_box, image)
+    save_black_white_mask(i, masks, input_box)
+
     # if i == 1:
     #     break
+plt.close()
+
+inpaint(args)
 
 end_time = time.time()
 run_time_spent = end_time - start_time

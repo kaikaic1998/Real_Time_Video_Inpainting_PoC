@@ -111,18 +111,20 @@ def try_mask():
     middle_end = middle_start + 200
     mask[middle_start:middle_end, :] = True
 
+    mask = (mask * 255.).astype(np.uint8)
+
     # mask = ~mask
     # mask = mask.astype(np.uint8) * 1
     # h, w = mask.shape[-2:]
     # mask = mask.reshape(h, w, 1)
     # cv2.imshow('', mask)
     # cv2.waitKey(0)
-    color = np.array([255/255, 255/255, 255/255, 1])
-    print(color.dtype)
 
-    h, w = mask.shape[-2:]
-    mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-    print(mask.dtype)
+    # color = np.array([255/255, 255/255, 255/255, 1])
+    # print(color.dtype)
+    # h, w = mask.shape[-2:]
+    # mask = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
+    # print(mask.dtype)
 
     cv2.imshow('', mask)
     cv2.waitKey(0)
@@ -151,5 +153,27 @@ def draw_rectangle_from_points():
     cv2.waitKey(0)
 # draw_rectangle_from_points()
 
-x, y = np.array([0, 1])
-print(x, y)
+def create_video_from_images():
+    images = [cv2.imread(image) for image in glob.glob("images/bmx-trees/*.jpg")]
+
+    h, w = images[0].shape[:2]
+    size = (w, h)
+
+    name = 'bmx-trees.mp4'
+    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), 30, size)
+    for i in range(len(images)):
+        out.write(images[i])
+    out.release()
+# create_video_from_images()
+
+cam = cv2.VideoCapture("images/video.mp4")
+currentframe = 0
+while(True):
+    ret,frame = cam.read()
+    if ret:
+        cv2.imwrite('images/video_frames/{:05d}.jpg'.format(currentframe), frame)
+        currentframe += 1
+    else:
+        break
+cam.release()
+cv2.destroyAllWindows()
