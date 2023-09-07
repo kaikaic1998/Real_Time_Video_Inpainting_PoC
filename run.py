@@ -45,7 +45,7 @@ def create_box_from_mask(mask):
     box = np.array([min_x-10, min_y-10, min_x + box_width+10, min_y + box_height+10])
     return box
 
-def show_masked_image(masks, input_box, image):
+def show_masked_image(i, masks, input_box, image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     plt.cla()
     plt.imshow(image)
@@ -62,6 +62,9 @@ def show_masked_image(masks, input_box, image):
     
     plt.axis('off')
     plt.pause(0.0001)
+
+    
+    plt.savefig('{:05d}.png'.format(i))
 
 def save_black_white_mask(i, masks):
     mask = (masks[0] * 255)
@@ -132,7 +135,7 @@ for i, image in enumerate(images):
     )
 
     # visualize masked image
-    show_masked_image(masks, input_box, image)
+    show_masked_image(i, masks, input_box, image)
     # save mask for later use
     save_black_white_mask(i, masks)
 plt.close()
