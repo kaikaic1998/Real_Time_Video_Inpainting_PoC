@@ -13,7 +13,6 @@ def inpaint(args):
     opt.double_size = True if opt.crop_size == 512 else False
     ########## DAVIS
     DAVIS_ROOT = args.data
-    print(DAVIS_ROOT)
     DTset = DAVIS(DAVIS_ROOT, mask_dilation=args.mask_dilation, size=(opt.crop_size, opt.crop_size))
     DTloader = data.DataLoader(DTset, batch_size=1, shuffle=False)
 

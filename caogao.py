@@ -166,14 +166,36 @@ def create_video_from_images():
     out.release()
 # create_video_from_images()
 
-cam = cv2.VideoCapture("images/video.mp4")
-currentframe = 0
-while(True):
-    ret,frame = cam.read()
-    if ret:
-        cv2.imwrite('images/video_frames/{:05d}.jpg'.format(currentframe), frame)
-        currentframe += 1
-    else:
-        break
-cam.release()
-cv2.destroyAllWindows()
+def create_images_from_video():
+    cam = cv2.VideoCapture("video.mp4")
+    currentframe = 0
+    while(True):
+        ret,frame = cam.read()
+        if ret:
+            cv2.imwrite('video_frame/{:05d}.jpg'.format(currentframe), frame)
+            currentframe += 1
+        else:
+            break
+    cam.release()
+# create_images_from_video()
+
+def resize_image():
+    images = [cv2.imread(image) for image in glob.glob("soccer/*.jpg")]
+
+    for i, image in enumerate(images):
+        dim = (854, 480)
+        resized_image = cv2.resize(image, dim)
+        cv2.imwrite('./images/soccer/{:05d}.jpg'.format(i), resized_image)
+# resize_image()
+
+def image_to_gif():
+    data = 'tennis'
+
+    frames = [Image.open(image) for image in glob.glob('data/' + data + '/*.jpg')]
+    frame_one = frames[0]
+    frame_one.save('gif_files/' + data + '.gif', format='GIF', append_images=frames, save_all=True, loop=0)
+
+    frames = [Image.open(image) for image in glob.glob('data/' + data + '_inpaint_result/*.png')]
+    frame_one = frames[0]
+    frame_one.save('gif_files/' + data + '_inpaint_result.gif', format='GIF', append_images=frames, save_all=True, loop=0)
+image_to_gif()
