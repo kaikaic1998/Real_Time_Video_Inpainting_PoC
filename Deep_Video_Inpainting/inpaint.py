@@ -1,4 +1,3 @@
-import time
 from torch.utils import data
 from Deep_Video_Inpainting.inpainting.davis import DAVIS
 from Deep_Video_Inpainting.inpainting.model import generate_model
@@ -116,7 +115,6 @@ def inpaint(args):
                 masked_inputs_ = torch.stack(masked_inputs_).permute(1, 0, 2, 3).unsqueeze(0)
                 masks_ = torch.stack(masks_).permute(1, 0, 2, 3).unsqueeze(0)
 
-                start = time.time()
                 if not opt.double_size:
                     prev_mask_ = to_var(torch.zeros(masks_[:, :, 2].size()))  # rec given when 256
                 prev_mask = masks_[:, :, 2] if t == 0 else prev_mask_
@@ -130,11 +128,9 @@ def inpaint(args):
                     prev_mask_ = masks_[:, :, 2] * 0.5  # rec given whtn 512
 
                 lstm_state = None
-                end = time.time() - start
                 if lstm_state is not None:
                     lstm_state = repackage_hidden(lstm_state)
 
-                total_time += end
                 if t > pre:
                     print('{}th frame of {} is being processed'.format(t - pre, seq_name))
                     out_frame = to_img(outputs)
