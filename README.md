@@ -1,6 +1,6 @@
 <h1 align="center">Real Time Video Inpainting (PoC)</h1>
 
-This repository is a Proof of Concept (PoC) with the goal to create a framework of real time video inpainting. This framework utlize three pre-trained machine learning model to achieve the goal. More specifically, a Siammask model is used to track target and output bound box at real time; a HQ-SAM model for predicting high quality mask of the selected target from the bounding box; a Deep Video Inpainting model for inpainting the target.
+This repository is a Proof of Concept (PoC) to create a framework for real-time video inpainting. This framework utilizes three pre-trained machine learning models to achieve the goal. More specifically, a Siammask model is used to track the target and output bound box in real time; an HQ-SAM model for predicting high-quality mask of the selected target from the bounding box; a Deep Video Inpainting model for inpainting the target.
 
 <p align="center">
 Framework
@@ -10,8 +10,8 @@ Framework
 <p align="center">
 <table class="center">
   <tr>
-    <td style="text-align:center">Input Image</td>
-    <td style="text-align:center">Real Time Inpainting</td>
+    <td style="text-align:center">Input</td>
+    <td style="text-align:center">Real-Time Inpainting</td>
   </tr>
   <tr>
     <td><img src="./gif/car-turn.gif" width="100%"></td>
@@ -115,7 +115,7 @@ python run.py --data/your_video.mp4
 </p>
 
 <h2 align="center">Challenges for Real Time Inpainting</h2>
-This framework tries to achieve inpainting by tracking and segmenting to create high quality masks for inpainting. The quality of the real time generation of masks directly impacts the quality of inpainting. 
+This framework tries to achieve inpainting by tracking and segmenting to create high quality masks for inpainting. The quality of the real-time generation of masks directly impacts the quality of inpainting. 
 
 Here, we discuss that challeges faced for achieving real time inpainting.
 
@@ -150,7 +150,7 @@ There is always trade offs to considered when selecting CNN and transformer mode
 <h2 align="center">Limitations of this Framework</h2>
 
 <p align="left">
-
+As simple shown below, although the quality of the mask within the bounding box is satisfactory, the limitation is the quality of the bounding box. Although most of the tracking ML models can track target accuratly, the bounding box sometimes cannot fully cover the whole target, which affects the quality of the mask prediction. As a result, ghosting effect is produced by the inpainting.
 </p>
 
 <p align="center">
@@ -165,11 +165,13 @@ There is always trade offs to considered when selecting CNN and transformer mode
   </tr>
 </p>
 
-
+<p align="left">
+Another example of the limitation of the chosen inpainting model is shown below. This specific inpainting model is trained with the DAVIS dataset, which results in poor inpainting quality with input video that is not from the DAVIS dataset even with perfect mask generated. However, this can be easily improved by fine-tuning the inpainting model with specific datasets to satisfy specific requirements.
+</p>
 
 <p align="center">
 <table class="center">
-<tr>
+  <tr>
     <td style="text-align:center">Masked Image</td>
     <td style="text-align:center">Real Time Inpainting</td>
   </tr>
@@ -178,10 +180,6 @@ There is always trade offs to considered when selecting CNN and transformer mode
     <td><img src="./gif/soccer_inpaint_result.gif" width="100%"></td>
   </tr>
 </table>
-</p>
-
-<p align="left">
-
 </p>
 
 <h2 align="center">Citation</h2>
