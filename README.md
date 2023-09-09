@@ -10,8 +10,8 @@ Framework
 <p align="center">
 <table class="center">
   <tr>
-    <td style="text-align:center">Input</td>
-    <td style="text-align:center">Real-Time Inpainting</td>
+    <td align='center'>Input</td>
+    <td align='center'>Real-Time Inpainting</td>
   </tr>
   <tr>
     <td><img src="./gif/car-turn.gif" width="100%"></td>
@@ -156,8 +156,8 @@ As simple shown below, although the quality of the mask within the bounding box 
 <p align="center">
 <table class="center">
   <tr>
-    <td style="text-align:center">Masked Image</td>
-    <td style="text-align:center">Real Time Inpainting</td>
+    <td align='center'>Masked Image</td>
+    <td align='center'>Real Time Inpainting</td>
   </tr>
   <tr>
     <td><img src="./gif/tennis_mask_image.gif" width="100%"></td>
@@ -172,8 +172,8 @@ Another example of the limitation of the chosen inpainting model is shown below.
 <p align="center">
 <table class="center">
   <tr>
-    <td style="text-align:center">Masked Image</td>
-    <td style="text-align:center">Real Time Inpainting</td>
+    <td align='center'>Masked Image</td>
+    <td align='center'>Real Time Inpainting</td>
   </tr>
   <tr>
     <td><img src="./gif/soccer_mask_image.gif" width="100%"></td>
