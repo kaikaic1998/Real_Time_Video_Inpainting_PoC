@@ -12,22 +12,22 @@ from PIL import Image
 from os import makedirs
 from os.path import join, isdir, isfile
 
-from Siammask.get_mask.utils.log_helper import init_log, add_file_handler
-from Siammask.get_mask.utils.load_helper import load_pretrain
-from Siammask.get_mask.utils.bbox_helper import get_axis_aligned_bbox, cxy_wh_2_rect
-from Siammask.get_mask.utils.benchmark_helper import load_dataset, dataset_zoo
+from Siammask.utils.log_helper import init_log, add_file_handler
+from Siammask.utils.load_helper import load_pretrain
+from Siammask.utils.bbox_helper import get_axis_aligned_bbox, cxy_wh_2_rect
+from Siammask.utils.benchmark_helper import load_dataset, dataset_zoo
 
 import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
 
-import Siammask.get_mask.models as models
+import Siammask.models as models
 
-from Siammask.get_mask.utils.anchors import Anchors
-from Siammask.get_mask.utils.tracker_config import TrackerConfig
+from Siammask.utils.anchors import Anchors
+from Siammask.utils.tracker_config import TrackerConfig
 
-from Siammask.get_mask.utils.config_helper import load_config
-from Siammask.get_mask.utils.pyvotkit.region import vot_overlap, vot_float2str
+from Siammask.utils.config_helper import load_config
+from Siammask.utils.pyvotkit.region import vot_overlap, vot_float2str
 
 thrs = np.arange(0.3, 0.5, 0.05)
 
@@ -552,7 +552,7 @@ def main():
 
     # setup model
     if args.arch == 'Custom':
-        from get_mask.models.custom import Custom
+        from models.custom import Custom
         model = Custom(anchors=cfg['anchors'])
     else:
         model = models.__dict__[args.arch](anchors=cfg['anchors'])

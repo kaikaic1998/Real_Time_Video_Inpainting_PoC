@@ -30,7 +30,7 @@ if args.data[-4:] == '.mp4':
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # setup Siammask
-args.config = 'Siammask/get_mask/experiments/siammask/config_davis.json'
+args.config = 'Siammask/experiments/siammask/config_davis.json'
 cfg = load_config(args)
 siammask = Custom(anchors=cfg['anchors'])
 if args.resume:
