@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+*.egg-info/
+
+# files
+Model_CP/sam_hq_vit_tiny.pth
+Model_CP/save_agg_rec_512.pth
+Model_CP/SiamMask_DAVIS.pth
