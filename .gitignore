@@ -6,6 +6,9 @@ build/
 develop-eggs/
 dist/
 *.egg-info/
+eggs/
+.eggs/
+
 
 # files
 Model_CP/sam_hq_vit_tiny.pth

@@ -6,8 +6,8 @@ import argparse
 from utils import *
 
 # import Siammask modules
-from Siammask.get_mask.test import *
-from Siammask.get_mask.models.custom import Custom
+from Siammask.test import *
+from Siammask.models.custom import Custom
 
 # import Deep Video Inpainting modules
 from Deep_Video_Inpainting.inpaint import inpaint
